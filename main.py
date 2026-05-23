@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+last_data = {}
+
 class SensorData(BaseModel):
     temperature: float
     humidity: float
@@ -13,13 +15,18 @@ def root():
 
 @app.post("/sensor-data")
 def receive_data(data: SensorData):
-    print(
-        f"POST /sensor-data: temperature={data.temperature}, humidity={data.humidity}",
-        flush=True
-    )
-
-    return {
-        "status": "ok",
+    last_data["latest"] = {
         "temperature": data.temperature,
         "humidity": data.humidity
     }
+
+    print(f"Received data: {last_data['latest']}", flush=True)
+
+    return {
+        "status": "ok",
+        **last_data["latest"]
+    }
+
+@app.get("/latest")
+def get_latest():
+    return last_data
