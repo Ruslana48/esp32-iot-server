@@ -13,7 +13,10 @@ def root():
 
 @app.post("/sensor-data")
 def receive_data(data: SensorData):
-    print(data)
+    print(
+        f"POST /sensor-data: temperature={data.temperature}, humidity={data.humidity}",
+        flush=True
+    )
 
     return {
         "status": "ok",
