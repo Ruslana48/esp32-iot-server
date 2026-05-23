@@ -68,50 +68,6 @@ async def telegram_webhook(request: Request):
     send_telegram_message(chat_id, "Available commands:\n/register esp32_001\n/status")
     return {"status": "ok"}
 
-@app.post("/telegram-webhook")
-async def telegram_webhook(request: Request):
-    update = await request.json()
-
-    message = update.get("message", {})
-    text = message.get("text", "")
-    chat = message.get("chat", {})
-    chat_id = str(chat.get("id"))
-
-    if text.startswith("/register"):
-        parts = text.split()
-
-        if len(parts) != 2:
-            send_telegram_message(chat_id, "Use: /register esp32_001")
-            return {"status": "ok"}
-
-        device_id = parts[1]
-        device_chat_map[device_id] = chat_id
-
-        send_telegram_message(chat_id, f"Device {device_id} registered successfully.")
-        return {"status": "ok"}
-
-    if text == "/status":
-        for device_id, saved_chat_id in device_chat_map.items():
-            if saved_chat_id == chat_id:
-                data = latest_data.get(device_id)
-
-                if not data:
-                    send_telegram_message(chat_id, "No data received from your device yet.")
-                else:
-                    send_telegram_message(
-                        chat_id,
-                        f"Device: {device_id}\n"
-                        f"Temperature: {data['temperature']}°C\n"
-                        f"Humidity: {data['humidity']}%"
-                    )
-                return {"status": "ok"}
-
-        send_telegram_message(chat_id, "No device registered. Use: /register esp32_001")
-        return {"status": "ok"}
-
-    send_telegram_message(chat_id, "Available commands:\n/register esp32_001\n/status")
-    return {"status": "ok"}
-
 @app.post("/sensor-data")
 def receive_data(data: SensorData):
     latest_data[data.device_id] = {
