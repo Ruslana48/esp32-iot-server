@@ -1,3 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
+pydantic
 requests
+torch
+torchvision
+pillow
+kagglehub
